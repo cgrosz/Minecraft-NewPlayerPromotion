@@ -1,0 +1,42 @@
+on first join:
+    wait 1 second
+
+    set {_ip} to IP address of the player
+    set {_count} to 1
+    set {_isAlt} to false
+    loop {first_join_ips::*}:
+        if "%{first_join_ips::%{_count}%}%" is "%{_ip}%":
+            set {_isAlt} to true
+        add 1 to {_count}
+    if {_isAlt} is true:
+        make console execute command "lp user %player% permission set group.alt true"
+    if {_isAlt} is false:
+        add {_ip} to {first_join_ips::*}
+        add player to {IsNewPlayer::*}
+        add "lootcraft.WelAcceptMsg" to player's permissions
+        make console execute command "/lp user %player% permission settemp essentials.fly true 90minutes"
+        wait 1 second
+        make player execute command "/fly"
+        make console execute "crate key %player% welcome"
+        wait 15 seconds
+        send "&eUse /rtp to get started playing! Don't forget to check /rules!"
+        send "&eYou can use the 'Welcome Crate Key' at /spawn!"
+        send "&e&lYou've been granted 90 minutes of FLY!"
+        wait 45 seconds
+        wait 89 minutes
+        remove "lootcraft.WelAcceptMsg" from player's permissions
+        send "&eYour 90 minutes of fly are up! Have fun playing LootcraftMC!"
+        set player's fly mode to false
+        remove player from {IsNewPlayer::*}
+
+command /checknewplayers:
+    permission: group.moderator
+    trigger:
+        set {_i} to 1
+        loop {IsNewPlayer::*}:
+            set {_i} to 1
+            loop all players:
+                if "%{IsNewPlayer::%{_i}%}%" is "%loop-player%":
+                    add loop-player to {_output::*}
+                add 1 to {_i}
+        send "%{_output::*}%"
